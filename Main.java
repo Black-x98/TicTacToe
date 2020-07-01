@@ -16,7 +16,7 @@ class dual{
 class TicTacToe{
 
     char[][] arr = {{'_','_','_'},{'_','_','_'},{'_','_','_'}};
-    String decision = "pending";
+    String decision_global = "pending";
     int x = -999;
     int y = -999;
     int movecount = 0;
@@ -24,31 +24,31 @@ class TicTacToe{
 
     dual convert(int x,int y){
         if(x==1 && y==3){
-            return new dual(1,1);
+            return new dual(0,0);
         }
         else if(x==2 && y==3){
-            return new dual(1,2);
+            return new dual(0,1);
         }
         else if(x==3 && y==3){
-            return new dual(1,3);
+            return new dual(0,2);
         }
         else if(x==1 && y==2){
-            return new dual(2,1);
+            return new dual(1,0);
         }
         else if(x==2 && y==2){
-            return new dual(2,2);
+            return new dual(1,1);
         }
         else if(x==3 && y==2){
-            return new dual(2,3);
+            return new dual(1,2);
         }
         else if(x==1 && y==1){
-            return new dual(3,1);
+            return new dual(2,0);
         }
         else if(x==2 && y==1){
-            return new dual(3,2);
+            return new dual(2,1);
         }
         else if(x==3 && y==1){
-            return new dual(3,3);
+            return new dual(2,2);
         }
         return new dual(7,7);
     }
@@ -71,9 +71,11 @@ class TicTacToe{
 
     }
 
-    void verdict(int _x, int _y, char Symbol){
+    String verdict(int _x, int _y, char Symbol){
 
+        String decision = "pending";
         String decision_text = "";
+
         if(Symbol=='X'){
             decision_text = "win";
         }
@@ -133,7 +135,7 @@ class TicTacToe{
                 decision = decision_text;
             }
         }
-
+        return decision;
     }
 
     String make_user_move(char Symbol){
@@ -161,8 +163,8 @@ class TicTacToe{
             }
 
             dual d = convert(x, y);
-            x = d.a - 1;
-            y = d.b - 1;
+            x = d.a;
+            y = d.b;
 
             if (arr[x][y] != '_') {
                 System.out.println("This cell is occupied! Choose another one!");
@@ -173,37 +175,98 @@ class TicTacToe{
         }
 
         arr[x][y] = Symbol;
-        verdict(x,y,Symbol);
+        decision_global = verdict(x,y,Symbol);
 
-        return decision;
+        return decision_global;
     }
 
-    String make_computer_move(char Symbol){
+    String make_computer_move(char Symbol,String mode){
 
-        System.out.println("Making move level \"easy\"");
-        var random = new Random();
-        while(true){
-            x = random.nextInt(3);
-            y = random.nextInt(3);
-            if(arr[x][y]=='_'){
-                break;
+        if(mode.equals("easy")){
+            System.out.println("Making move level \"easy\"");
+        }
+        else if(mode.equals("medium")){
+            System.out.println("Making move level \"medium\"");
+        }
+
+        // Detecting potential oneshot win situation for both sides.
+        ArrayList<dual> list = new ArrayList<dual>();
+        char otherSymbol = '\0';
+        if (Symbol=='X'){
+            otherSymbol = 'O';
+        }
+        else{
+            otherSymbol = 'X';
+        }
+
+        for(int i=0;i<3;i++){ // listing empty cells
+            for(int j=0;j<3;j++){
+                if(arr[i][j]=='_'){
+                    list.add(new dual(i,j));
+                }
             }
         }
 
-        arr[x][y] = Symbol;
-        verdict(x,y,Symbol);
+        boolean decision_taken = false;
+        dual decided_pos = new dual(-999,-999);
 
-        return decision;
+        for(int i=0;i<list.size();i++){ // checking each empty cell's potential for its own
+            dual d = list.get(i);
+
+            arr[d.a][d.b] = Symbol;
+            String semi_dec = verdict(d.a,d.b,Symbol);
+            if(Symbol == 'X' && semi_dec.equals("win") || Symbol == 'O' && semi_dec.equals("lose")){
+                decided_pos = d;
+                decision_taken = true;
+                break;
+            }
+            arr[d.a][d.b] = '_';
+        }
+
+        if(decision_taken==false){
+            for(int i=0;i<list.size();i++){ // checking each empty cell's potential for the opponent
+                dual d = list.get(i);
+                arr[d.a][d.b] = otherSymbol;
+                String semi_dec = verdict(d.a,d.b,otherSymbol);
+                if(otherSymbol == 'O' && semi_dec.equals("lose") || otherSymbol == 'X' && semi_dec.equals("win")){
+                    decided_pos = d;
+                    decision_taken = true;
+                    break;
+                }
+                arr[d.a][d.b] = '_';
+            }
+        }
+
+        if(mode.equals("medium") && decision_taken==true){
+            x = decided_pos.a;
+            y = decided_pos.b;
+            arr[x][y] = Symbol;
+            decision_global = verdict(x,y,Symbol);
+        }
+        else{
+            var random = new Random();
+            while(true){
+                x = random.nextInt(3);
+                y = random.nextInt(3);
+                if(arr[x][y]=='_'){
+                    break;
+                }
+            }
+            arr[x][y] = Symbol;
+            decision_global = verdict(x,y,Symbol);
+        }
+
+        return decision_global;
     }
 
     void play_game(){
 
-        //arr = {{'_','_','_'},{'_','_','_'},{'_','_','_'}};
         String input = "";
         String[] sepinputs;
         while(true){
-            decision = "pending";
+            decision_global = "pending";
             movecount = 0;
+            var EmptyList = new ArrayList();
             for(int i=0;i<3;i++){
                 for(int j=0;j<3;j++){
                     arr[i][j] = '_';
@@ -221,23 +284,23 @@ class TicTacToe{
                 char[] symbols = {'X','O'};
                 print_field();
 
-                while(movecount<9 && decision.equalsIgnoreCase("pending")){
+                while(movecount<9 && decision_global.equalsIgnoreCase("pending")){
                     int turn = movecount%2;
                     if(players[turn].equals("user")){ // problem
                         System.out.println("inside user moves");
-                        decision = make_user_move(symbols[turn]);
+                        decision_global = make_user_move(symbols[turn]);
                     }
                     else{
-                        decision = make_computer_move(symbols[turn]);
+                        decision_global = make_computer_move(symbols[turn],players[turn]);
                     }
                     movecount++;
                     print_field();
                 }
 
-                if(decision.equalsIgnoreCase("win")){
+                if(decision_global.equalsIgnoreCase("win")){
                     System.out.println("X wins");
                 }
-                else if(decision.equalsIgnoreCase("lose")){
+                else if(decision_global.equalsIgnoreCase("lose")){
                     System.out.println("O wins");
                 }
                 else if(movecount>=9){
