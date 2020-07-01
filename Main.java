@@ -1,5 +1,6 @@
 package tictactoe;
 
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -15,11 +16,10 @@ class dual{
 class TicTacToe{
 
     char[][] arr = {{'_','_','_'},{'_','_','_'},{'_','_','_'}};
-    char userSymbol = 'T';
-    char otherSymbol = 'T';
     String decision = "pending";
     int x = -999;
     int y = -999;
+    int movecount = 0;
     Scanner sc = new Scanner(System.in);
 
     dual convert(int x,int y){
@@ -53,37 +53,6 @@ class TicTacToe{
         return new dual(7,7);
     }
 
-    void take_field(){
-        System.out.println("Enter cells:");
-        String N = sc.next();
-        //String N = "O__XX___O";
-        int numX = 0;
-        int numO = 0;
-        for(int i=0; i<3; i++){
-            for(int j=0; j<3; j++){
-                char s = N.charAt(i*3+j);
-                if(s=='X'){
-                    arr[i][j] = 'X';
-                    numX++;
-                }
-                else if(s=='O'){
-                    arr[i][j] = 'O';
-                    numO++;
-                }
-                else if(s=='_'){
-                    arr[i][j] = '_';
-                }
-            }
-        }
-        if(numX==numO){
-            userSymbol = 'X';
-        }
-        else if(numX>numO){
-            userSymbol = 'O';
-        }
-
-    }
-
     void print_field(){
         System.out.println("---------");
         for(int i=0; i < 3; i++) {
@@ -102,64 +71,72 @@ class TicTacToe{
 
     }
 
-    void verdict(int _x, int _y){
+    void verdict(int _x, int _y, char Symbol){
+
+        String decision_text = "";
+        if(Symbol=='X'){
+            decision_text = "win";
+        }
+        else if(Symbol=='O'){
+            decision_text = "lose";
+        }
 
         if(_x==0 && _y==0){
-            if(arr[_x][_y]==userSymbol && arr[_x+1][_y+1]==userSymbol && arr[_x+2][_y+2]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y]==Symbol && arr[_x+1][_y+1]==Symbol && arr[_x+2][_y+2]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_x==2 && _y==0){
-            if(arr[_x][_y]==userSymbol && arr[_x-1][_y+1]==userSymbol && arr[_x-2][_y+2]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y]==Symbol && arr[_x-1][_y+1]==Symbol && arr[_x-2][_y+2]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_x==0 && _y==2){
-            if(arr[_x][_y]==userSymbol && arr[_x+1][_y-1]==userSymbol && arr[_x+2][_y-2]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y]==Symbol && arr[_x+1][_y-1]==Symbol && arr[_x+2][_y-2]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_x==2 && _y==2){
-            if(arr[_x][_y]==userSymbol && arr[_x-1][_y-1]==userSymbol & arr[_x-2][_y-2]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y]==Symbol && arr[_x-1][_y-1]==Symbol & arr[_x-2][_y-2]==Symbol){
+                decision = decision_text;
             }
         }
 
         if(_x==0){
-            if(arr[_x][_y]==userSymbol && arr[_x+1][_y]==userSymbol && arr[_x+2][_y]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y]==Symbol && arr[_x+1][_y]==Symbol && arr[_x+2][_y]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_x==1){
-            if(arr[_x-1][_y]==userSymbol && arr[_x][_y]==userSymbol && arr[_x+1][_y]==userSymbol){
-                decision = "win";
+            if(arr[_x-1][_y]==Symbol && arr[_x][_y]==Symbol && arr[_x+1][_y]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_x==2){
-            if(arr[_x-2][_y]==userSymbol && arr[_x-1][_y]==userSymbol && arr[_x][_y]==userSymbol){
-                decision = "win";
+            if(arr[_x-2][_y]==Symbol && arr[_x-1][_y]==Symbol && arr[_x][_y]==Symbol){
+                decision = decision_text;
             }
         }
 
         if(_y==0){
-            if(arr[_x][_y]==userSymbol && arr[_x][_y+1]==userSymbol && arr[_x][_y+2]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y]==Symbol && arr[_x][_y+1]==Symbol && arr[_x][_y+2]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_y==1){
-            if(arr[_x][_y-1]==userSymbol && arr[_x][_y]==userSymbol && arr[_x][_y+1]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y-1]==Symbol && arr[_x][_y]==Symbol && arr[_x][_y+1]==Symbol){
+                decision = decision_text;
             }
         }
         else if(_y==2){
-            if(arr[_x][_y-2]==userSymbol && arr[_x][_y-1]==userSymbol && arr[_x][_y]==userSymbol){
-                decision = "win";
+            if(arr[_x][_y-2]==Symbol && arr[_x][_y-1]==Symbol && arr[_x][_y]==Symbol){
+                decision = decision_text;
             }
         }
 
     }
 
-    String take_next_move(){
+    String make_user_move(char Symbol){
 
         int x, y;
         System.out.println("Enter the coordinates: ");
@@ -167,22 +144,21 @@ class TicTacToe{
         while(true){
             while (true) {
                 try{
-                x = sc.nextInt();
-                y = sc.nextInt();
-                if (0 < x && x <= 3 && 0 < y && y <= 3) {
-                    break_flag = true;
-                    break;
-                }
-                else{
-                    System.out.println("Coordinates should be from 1 to 3!");
-                }
+                    x = sc.nextInt();
+                    y = sc.nextInt();
+                    if (0 < x && x <= 3 && 0 < y && y <= 3) {
+                        break_flag = true;
+                        break;
+                    }
+                    else{
+                        System.out.println("Coordinates should be from 1 to 3!");
+                    }
                 }
                 catch (Exception e){
                     System.out.println("You should enter numbers!");
                     sc.nextLine();
                 }
             }
-
 
             dual d = convert(x, y);
             x = d.a - 1;
@@ -196,49 +172,85 @@ class TicTacToe{
             }
         }
 
-        arr[x][y] = userSymbol;
+        arr[x][y] = Symbol;
+        verdict(x,y,Symbol);
 
-        verdict(x,y);
+        return decision;
+    }
+
+    String make_computer_move(char Symbol){
+
+        System.out.println("Making move level \"easy\"");
+        var random = new Random();
+        while(true){
+            x = random.nextInt(3);
+            y = random.nextInt(3);
+            if(arr[x][y]=='_'){
+                break;
+            }
+        }
+
+        arr[x][y] = Symbol;
+        verdict(x,y,Symbol);
 
         return decision;
     }
 
     void play_game(){
 
-        var arrlist = new ArrayList();
-        int empty = 0;
-        take_field();
-        print_field();
-        decision = take_next_move();
-        print_field();
-        if(decision.equalsIgnoreCase("pending")){
+        //arr = {{'_','_','_'},{'_','_','_'},{'_','_','_'}};
+        String input = "";
+        String[] sepinputs;
+        while(true){
+            decision = "pending";
+            movecount = 0;
             for(int i=0;i<3;i++){
                 for(int j=0;j<3;j++){
-                    if(arr[i][j]=='_'){
-                        empty++;
-                        arrlist.add(new dual(i,j));
-                    }
+                    arr[i][j] = '_';
                 }
             }
-            if(empty==0){
-                decision = "draw";
-            }
-            else{
-                decision = "pending";
-            }
-        }
+            System.out.print("Input command: ");
+            input = sc.nextLine();
+            sepinputs = input.split(" ");
 
-        if(decision.equalsIgnoreCase("win")){
-            System.out.println(userSymbol + " wins");
-        }
-        else if(decision.equalsIgnoreCase("draw")){
-            System.out.println("Draw");
-        }
-        else if(decision.equalsIgnoreCase("pending")){
-            System.out.println("Game not finished");
+            if(sepinputs[0].equals("start") && sepinputs.length!=3){
+                System.out.println("Bad parameters!");
+            }
+            else if(sepinputs[0].equals("start") && sepinputs.length==3){
+                String[] players = {sepinputs[1], sepinputs[2]};
+                char[] symbols = {'X','O'};
+                print_field();
+
+                while(movecount<9 && decision.equalsIgnoreCase("pending")){
+                    int turn = movecount%2;
+                    if(players[turn].equals("user")){ // problem
+                        System.out.println("inside user moves");
+                        decision = make_user_move(symbols[turn]);
+                    }
+                    else{
+                        decision = make_computer_move(symbols[turn]);
+                    }
+                    movecount++;
+                    print_field();
+                }
+
+                if(decision.equalsIgnoreCase("win")){
+                    System.out.println("X wins");
+                }
+                else if(decision.equalsIgnoreCase("lose")){
+                    System.out.println("O wins");
+                }
+                else if(movecount>=9){
+                    System.out.println("Draw");
+                }
+            }
+            else if(sepinputs[0].equals("exit")){
+                break;
+            }
         }
     }
 }
+
 
 public class Main {
     public static void main(String[] args) {
