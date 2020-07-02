@@ -181,15 +181,10 @@ class TicTacToe{
     }
 
     String make_computer_move(char Symbol,String mode){
-
-        if(mode.equals("easy")){
-            System.out.println("Making move level \"easy\"");
-        }
-        else if(mode.equals("medium")){
-            System.out.println("Making move level \"medium\"");
-        }
-
+        
         if(mode.equals("medium")){
+
+            System.out.println("Making move level \"medium\"");
             // Detecting potential oneshot win situation for both sides. Applicable for medium level.
             ArrayList<dual> list = new ArrayList<dual>();
             char otherSymbol = '\0';
@@ -258,6 +253,8 @@ class TicTacToe{
         }
 
         else if(mode.equals("easy")){
+
+            System.out.println("Making move level \"easy\"");
             var random = new Random();
             while(true){
                 x = random.nextInt(3);
