@@ -189,61 +189,75 @@ class TicTacToe{
             System.out.println("Making move level \"medium\"");
         }
 
-        // Detecting potential oneshot win situation for both sides.
-        ArrayList<dual> list = new ArrayList<dual>();
-        char otherSymbol = '\0';
-        if (Symbol=='X'){
-            otherSymbol = 'O';
-        }
-        else{
-            otherSymbol = 'X';
-        }
+        if(mode.equals("medium")){
+            // Detecting potential oneshot win situation for both sides. Applicable for medium level.
+            ArrayList<dual> list = new ArrayList<dual>();
+            char otherSymbol = '\0';
+            if (Symbol=='X'){
+                otherSymbol = 'O';
+            }
+            else{
+                otherSymbol = 'X';
+            }
 
-        for(int i=0;i<3;i++){ // listing empty cells
-            for(int j=0;j<3;j++){
-                if(arr[i][j]=='_'){
-                    list.add(new dual(i,j));
+            for(int i=0;i<3;i++){ // listing empty cells
+                for(int j=0;j<3;j++){
+                    if(arr[i][j]=='_'){
+                        list.add(new dual(i,j));
+                    }
                 }
             }
-        }
 
-        boolean decision_taken = false;
-        dual decided_pos = new dual(-999,-999);
+            boolean decision_taken = false;
+            dual decided_pos = new dual(-999,-999);
 
-        for(int i=0;i<list.size();i++){ // checking each empty cell's potential for its own
-            dual d = list.get(i);
-
-            arr[d.a][d.b] = Symbol;
-            String semi_dec = verdict(d.a,d.b,Symbol);
-            if(Symbol == 'X' && semi_dec.equals("win") || Symbol == 'O' && semi_dec.equals("lose")){
-                decided_pos = d;
-                decision_taken = true;
-                break;
-            }
-            arr[d.a][d.b] = '_';
-        }
-
-        if(decision_taken==false){
-            for(int i=0;i<list.size();i++){ // checking each empty cell's potential for the opponent
+            for(int i=0;i<list.size();i++){ // checking each empty cell's potential for its own
                 dual d = list.get(i);
-                arr[d.a][d.b] = otherSymbol;
-                String semi_dec = verdict(d.a,d.b,otherSymbol);
-                if(otherSymbol == 'O' && semi_dec.equals("lose") || otherSymbol == 'X' && semi_dec.equals("win")){
+
+                arr[d.a][d.b] = Symbol;
+                String semi_dec = verdict(d.a,d.b,Symbol);
+                if(Symbol == 'X' && semi_dec.equals("win") || Symbol == 'O' && semi_dec.equals("lose")){
                     decided_pos = d;
                     decision_taken = true;
                     break;
                 }
                 arr[d.a][d.b] = '_';
             }
+
+            if(decision_taken==false){
+                for(int i=0;i<list.size();i++){ // checking each empty cell's potential for the opponent
+                    dual d = list.get(i);
+                    arr[d.a][d.b] = otherSymbol;
+                    String semi_dec = verdict(d.a,d.b,otherSymbol);
+                    if(otherSymbol == 'O' && semi_dec.equals("lose") || otherSymbol == 'X' && semi_dec.equals("win")){
+                        decided_pos = d;
+                        decision_taken = true;
+                        break;
+                    }
+                    arr[d.a][d.b] = '_';
+                }
+            }
+            if(decision_taken==true){
+                x = decided_pos.a;
+                y = decided_pos.b;
+                arr[x][y] = Symbol;
+                decision_global = verdict(x,y,Symbol);
+            }
+            else{
+                var random = new Random();
+                while(true){
+                    x = random.nextInt(3);
+                    y = random.nextInt(3);
+                    if(arr[x][y]=='_'){
+                        break;
+                    }
+                }
+                arr[x][y] = Symbol;
+                decision_global = verdict(x,y,Symbol);
+            }
         }
 
-        if(mode.equals("medium") && decision_taken==true){
-            x = decided_pos.a;
-            y = decided_pos.b;
-            arr[x][y] = Symbol;
-            decision_global = verdict(x,y,Symbol);
-        }
-        else{
+        else if(mode.equals("easy")){
             var random = new Random();
             while(true){
                 x = random.nextInt(3);
